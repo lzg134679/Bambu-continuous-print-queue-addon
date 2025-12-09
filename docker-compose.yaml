@@ -1,0 +1,28 @@
+services:
+  bambu_queue:
+    build:
+      context: .
+      # 使用 Alpine 作为基础镜像，兼容现有 Dockerfile 中的 apk 命令
+      args:
+        BUILD_FROM: alpine:3.20
+    container_name: bambu-continuous-print-queue
+    restart: unless-stopped
+
+    # Web 访问端口：宿主机 5000 -> 容器 5000
+    ports:
+      - "5000:5000"
+
+    # 数据与配置挂载
+    # - ./data 用于存放 config.ini、日志和临时文件
+    # - ./3mf 映射为容器中的 /data/3mf，方便在宿主机整理打印文件
+    volumes:
+      - ./data:/data
+      - ./3mf:/data/3mf
+
+    environment:
+      # Flask 监听地址与端口，需与端口映射保持一致
+      HOST: "0.0.0.0"
+      PORT: "5000"
+
+      # 运行时数据目录，与上面的卷挂载位置保持一致
+      APP_DATA_DIR: "/data"

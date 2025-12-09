@@ -1,0 +1,51 @@
+name: "Bambu连续打印队列"
+version: "1.0.0"
+slug: "bambu_queue_print"
+description: "基于 Flask 的拓竹连续打印队列生成工具，通过浏览器配置 FTP 和 Home Assistant，并生成自动化队列。"
+url: "https://github.com/lzg134679/Bambu-continuous-print-queue-addon"
+arch:
+  - amd64
+  - aarch64
+  - armv7
+startup: application
+boot: auto
+init: false
+host_network: true
+# 镜像由 Home Assistant 本地构建
+ports:
+  5000/tcp: 5000
+ingress: true
+ingress_port: 5000
+panel_icon: "mdi:printer-3d"
+panel_title: "拓竹连续打印队列"
+panel_admin: false
+
+map:
+  - addon_config:rw
+  - addon_data:rw
+
+environment:
+  APP_DATA_DIR: "/data"
+
+options:
+  ftp_host: ""
+  ftp_port: 990
+  ftp_user: "bblp"
+  ftp_password: ""
+  ftp_path: "/cache"
+  ha_url: "http://homeassistant.local:8123/"
+  ha_token: ""
+  ha_printer_entity: "a1mini_xxxxx"
+  ha_notify_entity: "text.xxxxx"
+  ams_count: 4
+schema:
+  ftp_host: str
+  ftp_port: int
+  ftp_user: str
+  ftp_password: str
+  ftp_path: str
+  ha_url: str
+  ha_token: password
+  ha_printer_entity: str
+  ha_notify_entity: str
+  ams_count: int

@@ -1,0 +1,1 @@
+..\python\python.exe -m PyInstaller -F --add-data "index.html;." -i 1.ico -n 打印队列生成 app.py

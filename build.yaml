@@ -1,0 +1,9 @@
+build_from:
+  amd64: "ghcr.io/home-assistant/amd64-base:latest"
+  aarch64: "ghcr.io/home-assistant/aarch64-base:latest"
+  armv7: "ghcr.io/home-assistant/armv7-base:latest"
+labels:
+  org.opencontainers.image.title: "Bambu Queue Add-on"
+  org.opencontainers.image.description: "拓竹连续打印队列_HA加载项"
+  org.opencontainers.image.source: "https://github.com/lzg134679/Bambu-continuous-print-queue-addon"
+  org.opencontainers.image.licenses: "MIT"

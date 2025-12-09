@@ -1,0 +1,34 @@
+#!/usr/bin/with-contenv sh
+# shellcheck shell=sh
+
+CONFIG_FILE="/data/config.ini"
+
+FTP_HOST="${FTP_HOST:-192.168.66.10}"
+FTP_PORT="${FTP_PORT:-990}"
+FTP_USER="${FTP_USER:-bblp}"
+FTP_PASSWORD="${FTP_PASSWORD:-36557748}"
+FTP_PATH="${FTP_PATH:-/cache}"
+
+HA_URL="${HA_URL:-http://homeassistant.local:8123/}"
+HA_TOKEN="${HA_TOKEN:-}"
+HA_PRINTER_ENTITY="${HA_PRINTER_ENTITY:-a1mini_xxxxx}"
+HA_NOTIFY_ENTITY="${HA_NOTIFY_ENTITY:-text.wxyingyong}"
+AMS_COUNT="${AMS_COUNT:-4}"
+
+mkdir -p /data
+
+cat > "${CONFIG_FILE}" <<EOF
+[ftp]
+host = ${FTP_HOST}
+port = ${FTP_PORT}
+user = ${FTP_USER}
+password = ${FTP_PASSWORD}
+path = ${FTP_PATH}
+
+[homeassistant]
+url = ${HA_URL}
+token = ${HA_TOKEN}
+printer_entity = ${HA_PRINTER_ENTITY}
+notify_entity = ${HA_NOTIFY_ENTITY}
+ams_count = ${AMS_COUNT}
+EOF
