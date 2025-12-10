@@ -18,31 +18,36 @@
 - Home Assistant（必须，用于自动化功能，可以在B站搜索windows环境的homeassistant一键端）
 - 网页浏览器
 
-## 安装步骤
+## 在 Home Assistant 中以加载项运行时热替换代码（覆盖运行）
 
-### 1. 克隆项目
-- 克隆项目
+- 在 Home Assistant 中，Supervisor 会为每个 Add-on 在宿主上生成一个 `addon_configs` 目录，目录名通常带有随机 ID，例如 `/addon_configs/3sdf1971_bambu_queue_print`。
+- 本加载项的启动脚本会自动在宿主的若干 `addon_configs` 路径下查找第一个名字包含 `bambu_queue_print`（或 `bambu_queue`）的子目录，并在该目录存在且包含 `app.py` 时把它作为覆盖代码目录运行。
+- 因此，调试流程为：把你本地修改后的文件放到该 Add-on 对应的 `addon_configs/<随机>_bambu_queue_print` 目录内（例如把 `app.py`、`index.html`和`config.ini`放进去），然后在 HA Add-on 页面重启该加载项，即可让修改生效。
 
-### 2. 创建虚拟环境（推荐）
-```bash
-# Windows
-python -m venv venv
-venv\Scripts\activate
+支持覆盖的内容示例：
+- `app.py`（程序入口）
+- `index.html`（前端页面）
+- `config.ini`（应用配置，请注意容器启动脚本也会生成 `/data/config.ini`，可直接编辑该文件）
 
-### 3. 安装依赖
-```bash
-pip install -r requirements.txt
-```
+示例（在 HA 上操作）：
+1. 找到 Add-on 的数据目录（通常位于宿主的 `addon_configs/` 下，目录名带随机前缀，例如 `3sdf1971_bambu_queue_print`）。
+2. 将你修改后的 `app.py`、`index.html` 复制到该目录下。
+3. 在 HA Add-on 页面重启该加载项，容器会自动检测并使用该目录中的代码。
+
+注意：请确保你放入的 `app.py` 与镜像内的 Python 版本和依赖兼容；容器会重用镜像内已安装的依赖（位于 `/usr/src/app/venv`）。
 
 ## 快速开始
 
-### 1. 运行应用（本机运行）
-```bash
-python app.py
-```
-应用将自动打开浏览器，访问 http://127.0.0.1:5000
+### 运行方式一. HA中加载项运行
 
-### 2. 使用 Docker Compose 运行（无 Home Assistant 加载项商店时推荐）
+1.在homeassistant中前往：设置-加载项-加载项商店
+2.点击右上角三个点，选择仓库
+3.在输入框内输入本项目的github网页链接，点击添加
+4.添加成功后会在商店列表中展示
+5.点击安装，安装完成后先切换到配置页填入所需的配置并保存
+6.启动此加载项，并勾选“添加至侧边栏”，在侧边栏中打开即可访问
+
+### 运行方式二. 使用 Docker Compose 运行（无 Home Assistant 加载项商店时推荐）
 
 在项目根目录已提供 `docker-compose.yaml`，确保本机已安装 Docker 和 Docker Compose，然后执行：
 
@@ -54,7 +59,25 @@ docker compose up -d --build
 
 容器会将数据和配置保存在当前目录下的 `data/` 文件夹中，打印文件默认使用当前目录下的 `3mf/` 文件夹（可直接在宿主机中管理 3MF 文件）。
 
-### 3. 配置设置
+### 运行方式三. 本地运行
+方法1：
+- 下载release中打包好的压缩文件
+- 解压后运行
+- 应用将自动打开浏览器，访问 http://127.0.0.1:5000
+
+方法2：
+- 克隆本项目
+- 安装依赖
+```bash
+pip install -r requirements.txt
+```
+- 运行py
+```bash
+python app.py
+```
+- 应用将自动打开浏览器，访问 http://127.0.0.1:5000
+
+### 配置设置
 1. 点击左下角"⚙️ 配置"按钮
 2. 填入以下信息：
 
@@ -69,20 +92,21 @@ docker compose up -d --build
 - **URL**：Home Assistant地址（例如 http://192.168.1.100:8123）
 - **Token**：长期访问令牌（在Home Assistant中生成）
 - **打印机实体**：打印机实体ID（例如 a1mini_xxxxxxxxxx）
+- **通知实体**：ha中自定义的text实体id（例如 text.xxxxx），打印完成后更新此实体，配置为空不触发更新
 
 3. 点击"测试连接"验证配置是否正确
 
-### 4. 上传和打印文件
+### 上传和打印文件
 
 #### 方式一：上传本地文件
-1. 网页中会自动列出3mf文件夹内的3mf文件
+1. 网页中先选择需要使用的3mf文件
 2. 配置好任务后文件会自动上传到打印机
 
 #### 方式二：选择打印机文件
 1. 在"打印机文件"区域浏览打印机文件
 2. 选择文件后下一步会自动下载对应文件到项目临时目录
 
-### 5. 配置打印队列
+### 配置打印队列
 配置每个文件的打印参数：
 - 打印次数
 - 打印顺序

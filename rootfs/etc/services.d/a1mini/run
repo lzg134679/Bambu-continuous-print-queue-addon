@@ -1,17 +1,58 @@
 #!/usr/bin/with-contenv sh
 # shellcheck shell=sh
 
-cd /usr/src/app || exit 1
-
 : "${APP_DATA_DIR:=/data}"
+# 确保数据目录的工作文件夹存在
 mkdir -p "${APP_DATA_DIR}/3mf" "${APP_DATA_DIR}/temp" "${APP_DATA_DIR}/tempDownload"
+
+: "${APP_CODE_DIR:="${APP_DATA_DIR}/addon_code"}"
+
+# 默认后备代码目录（镜像内只读）
+DEFAULT_CODE_DIR="/usr/src/app"
+
+# 额外查找：有些 HA/Supervisor 在宿主上会在 `addon_configs` 下生成随机 ID 的子目录
+# 例如: /addon_configs/3sdf1971_bambu_queue_print
+# 我们在若干常见父路径下寻找匹配名称的子目录（按找到顺序优先）
+EXTRA_CANDIDATES=""
+for parent in /addon_configs ${APP_DATA_DIR}/addon_configs; do
+	if [ -d "$parent" ]; then
+		for sub in "$parent"/*; do
+			if [ -d "$sub" ]; then
+				name=$(basename "$sub")
+				case "$name" in
+					*bambu_queue_print*|*bambu_queue*)
+						EXTRA_CANDIDATES="$EXTRA_CANDIDATES $sub"
+						;;
+				esac
+			fi
+		done
+	fi
+done
+
+# 合并候选目录，顺序：显式 APP_CODE_DIR -> addon_configs 匹配目录 -> 常规位置
+CANDIDATES="$EXTRA_CANDIDATES"
+
+# 优先使用第一个名字包含 bambu_queue_print 或 bambu_queue 的子目录
+CODE_DIR="${DEFAULT_CODE_DIR}"
+for d in $CANDIDATES; do
+	if [ -d "$d" ] && [ -f "$d/app.py" ]; then
+		CODE_DIR="$d"
+		echo "调试模式: 使用addon_configs文件夹下的文件运行): ${CODE_DIR}"
+		break
+	fi
+done
+
+if [ "${CODE_DIR}" = "${DEFAULT_CODE_DIR}" ]; then
+	echo "addon_configs文件夹下无替换文件, 使用默认位置启动: ${CODE_DIR}"
+fi
 
 # 强制容器内监听地址和端口，确保 Supervisor ingress 能连接到容器
 # Supervisor 会把 ingress 转发到容器的 5000 端口，确保绑定 0.0.0.0
 export HOST="0.0.0.0"
 export PORT="5000"
 
-echo "Starting app with HOST=${HOST} PORT=${PORT} APP_DATA_DIR=${APP_DATA_DIR}"
+echo "Starting app with HOST=${HOST} PORT=${PORT} APP_DATA_DIR=${APP_DATA_DIR} CODE_DIR=${CODE_DIR}"
 ps aux || true
 
-exec /usr/src/app/venv/bin/python -u app.py
+# 使用镜像内 venv 的 python 运行选定目录下的 app.py（这样可以复用已安装依赖）
+exec /usr/src/app/venv/bin/python -u "${CODE_DIR}/app.py"

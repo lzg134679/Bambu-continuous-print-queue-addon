@@ -36,7 +36,7 @@ options:
   ha_url: "http://homeassistant.local:8123/"
   ha_token: ""
   ha_printer_entity: "a1mini_xxxxx"
-  ha_notify_entity: "text.xxxxx"
+  ha_notify_entity: ""
   ams_count: 4
 schema:
   ftp_host: str
