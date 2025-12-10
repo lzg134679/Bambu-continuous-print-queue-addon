@@ -9,13 +9,7 @@ mkdir -p "${APP_DATA_DIR}/3mf" "${APP_DATA_DIR}/temp" "${APP_DATA_DIR}/tempDownl
 
 # 默认后备代码目录（镜像内只读）
 DEFAULT_CODE_DIR="/usr/src/app"
-
-# 合并候选目录，顺序：显式 APP_CODE_DIR -> addon_configs 匹配目录 -> 常规位置
-echo "临时调试-CANDIDATES: ${CANDIDATES}"
-# 优先使用第一个名字包含 bambu_queue_print 或 bambu_queue 的子目录
-
-# 检查：/config/bambu_queue_print
-TARGET_DIR="/config/bambu_queue_print"
+TARGET_DIR="/config"
 
 CODE_DIR="${DEFAULT_CODE_DIR}"
 if [ -d "${TARGET_DIR}" ] && [ -f "${TARGET_DIR}/app.py" ]; then
