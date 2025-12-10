@@ -20,16 +20,11 @@
 
 ## 在 Home Assistant 中以加载项运行时热替换代码（覆盖运行）
 
-- 启动脚本检查固定路径 `/config/bambu_queue_print`。
-- 调试流程为：将你本地修改后的文件（例如 `app.py`、`index.html`、`config.ini` 等）复制到宿主的 `/config/bambu_queue_print` 目录中（确保目录存在且包含 `app.py`），然后在 HA Add-on 页面重启该加载项，容器会优先运行该目录下的代码，从而完成热替换。
-
-支持覆盖的内容示例：
-- `app.py`（程序入口）
-- `index.html`（前端页面）
-- `config.ini`（应用配置，请注意容器启动脚本也会生成 `/data/config.ini`，可直接编辑该文件）
+- 启动脚本检查路径 `/addon_configs/随机id_bambu_queue_print`里是否有`app.py`和`index.html`。
+- 调试流程为：将你本地修改后的文件（`app.py`、`index.html`）全部复制到HA的 `/addon_configs/随机id_bambu_queue_print` 目录中（上述两个文件都需要在），然后在 HA Add-on 页面重启该加载项，容器会优先运行该目录下的代码，从而完成热替换。
 
 示例（在 HA 上操作）：
-1. 找到 Add-on 的数据目录（通常位于宿主的 `addon_configs/` 下，目录名带随机前缀，例如 `3sdf1971_bambu_queue_print`）。
+1. 找到 Add-on 的数据目录（通常位于宿主的 `/addon_configs/` 下，目录名带随机前缀，例如 `3sdf1971_bambu_queue_print`）。
 2. 将你修改后的 `app.py`、`index.html` 复制到该目录下。
 3. 在 HA Add-on 页面重启该加载项，容器会自动检测并使用该目录中的代码。
 

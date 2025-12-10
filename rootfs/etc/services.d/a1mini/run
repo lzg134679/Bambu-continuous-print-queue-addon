@@ -12,11 +12,12 @@ DEFAULT_CODE_DIR="/usr/src/app"
 TARGET_DIR="/config"
 
 CODE_DIR="${DEFAULT_CODE_DIR}"
-if [ -d "${TARGET_DIR}" ] && [ -f "${TARGET_DIR}/app.py" ]; then
+# 仅当 /config 目录存在且同时包含 app.py 和 index.html 时，才使用覆盖路径
+if [ -d "${TARGET_DIR}" ] && [ -f "${TARGET_DIR}/app.py" ] && [ -f "${TARGET_DIR}/index.html" ]; then
   CODE_DIR="${TARGET_DIR}"
-  echo "调试模式-使用覆盖路径运行: ${CODE_DIR}"
+  echo "调试模式-使用覆盖路径运行: ${CODE_DIR} (检测到 app.py 和 index.html)"
 else
-  echo "未发现覆盖文件，使用默认路径: ${CODE_DIR}"
+  echo "未发现完整的调试覆盖文件（需要 app.py 和 index.html），使用默认路径: ${CODE_DIR}"
 fi
 
 # 强制容器内监听地址和端口，确保 Supervisor ingress 能连接到容器
