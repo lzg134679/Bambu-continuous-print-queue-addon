@@ -20,9 +20,8 @@
 
 ## 在 Home Assistant 中以加载项运行时热替换代码（覆盖运行）
 
-- 在 Home Assistant 中，Supervisor 会为每个 Add-on 在宿主上生成一个 `addon_configs` 目录，目录名通常带有随机 ID，例如 `/addon_configs/3sdf1971_bambu_queue_print`。
-- 本加载项的启动脚本会自动在宿主的若干 `addon_configs` 路径下查找第一个名字包含 `bambu_queue_print`（或 `bambu_queue`）的子目录，并在该目录存在且包含 `app.py` 时把它作为覆盖代码目录运行。
-- 因此，调试流程为：把你本地修改后的文件放到该 Add-on 对应的 `addon_configs/<随机>_bambu_queue_print` 目录内（例如把 `app.py`、`index.html`和`config.ini`放进去），然后在 HA Add-on 页面重启该加载项，即可让修改生效。
+- 启动脚本检查固定路径 `/config/bambu_queue_print`。
+- 调试流程为：将你本地修改后的文件（例如 `app.py`、`index.html`、`config.ini` 等）复制到宿主的 `/config/bambu_queue_print` 目录中（确保目录存在且包含 `app.py`），然后在 HA Add-on 页面重启该加载项，容器会优先运行该目录下的代码，从而完成热替换。
 
 支持覆盖的内容示例：
 - `app.py`（程序入口）
